@@ -1,0 +1,6 @@
+/node_modules
+/nodemon.json
+/.env
+/.dev.env
+/birthdays.json
+/dist
