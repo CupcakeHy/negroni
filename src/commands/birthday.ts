@@ -2,8 +2,6 @@ import { EmbedBuilder, SlashCommandBuilder, TextChannel, User } from "discord.js
 import { command } from "../utils/command.js";
 import fs from 'fs';
 import { Color, Reply } from "../utils/replies.js";
-import { CronJob } from "cron";
-import Keys from "../keys.js";
 
 const data = new SlashCommandBuilder()
 	.setName('birthday')
