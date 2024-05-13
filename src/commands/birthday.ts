@@ -103,13 +103,15 @@ export default command(data, async ({ interaction }) => {
 	} else if (interaction.options.getSubcommand() === 'list') {
 		var birthdays = JSON.parse(fs.readFileSync('./birthdays.json', 'utf8'));
 
+		var sortedBirthdays = birthdays.sort((a: { month: number; day: number | undefined; }, b: { month: number; day: number | undefined; }) => new Date(2000, a.month - 1, a.day).getTime() - new Date(2000, b.month - 1, b.day).getTime())
+
 		const embed = new EmbedBuilder()
 			.setColor(0x8742f5)
 			.setTitle('Lista de cumpleaños')
 
-		birthdays.forEach((birthday: { user: { globalName: string; }; day: number; month: number; }) => {
+		sortedBirthdays.forEach((birthday: { user: User; day: number; month: number; }) => {
 			embed.addFields(
-				{ name: birthday.user.globalName, value: `${birthday.day}/${birthday.month}` }
+				{ name: birthday.user.globalName ?? birthday.user.username, value: `${birthday.day}/${birthday.month}` }
 			)
 		});
 
