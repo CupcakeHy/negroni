@@ -58,7 +58,7 @@ export default command(data, async ({ interaction }) => {
 
 		var birthdays = JSON.parse(fs.readFileSync('./birthdays.json', 'utf8'));
 
-		var find = birthdays.find((o: { user: User | null; }) => o.user?.id === user?.id)
+		var find = birthdays.find((o: { user: User; }) => o.user?.id === user?.id)
 
 		if (find) {
 			return interaction.reply(
@@ -85,7 +85,7 @@ export default command(data, async ({ interaction }) => {
 
 		var birthdays = JSON.parse(fs.readFileSync('./birthdays.json', 'utf8'));
 
-		var find = birthdays.find((o: { user: User | null; }) => o.user?.id === user?.id);
+		var find = birthdays.find((o: { user: User; }) => o.user?.id === user?.id);
 
 		if (find) {
 			birthdays.splice(find, 1);
@@ -103,7 +103,7 @@ export default command(data, async ({ interaction }) => {
 	} else if (interaction.options.getSubcommand() === 'list') {
 		var birthdays = JSON.parse(fs.readFileSync('./birthdays.json', 'utf8'));
 
-		var sortedBirthdays = birthdays.sort((a: { month: number; day: number | undefined; }, b: { month: number; day: number | undefined; }) => new Date(2000, a.month - 1, a.day).getTime() - new Date(2000, b.month - 1, b.day).getTime())
+		var sortedBirthdays = birthdays.sort((a: { month: number; day: number; }, b: { month: number; day: number; }) => new Date(2000, a.month - 1, a.day).getTime() - new Date(2000, b.month - 1, b.day).getTime())
 
 		const embed = new EmbedBuilder()
 			.setColor(0x8742f5)
