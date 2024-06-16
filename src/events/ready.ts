@@ -27,7 +27,6 @@ export default event(Events.ClientReady, async ({ log }, client) => {
 			});
 		},
 		start: true,
-		runOnInit: true,
 		timeZone: 'Europe/Madrid'
 	});
 	
