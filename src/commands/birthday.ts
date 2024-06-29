@@ -108,14 +108,17 @@ export default command(data, async ({ interaction }) => {
 
 	} else if (interaction.options.getSubcommand() === 'list') {
 		try {
-			const users = await User.find().sort({ birthday: -1 });
+			const users = await User.find();
+			const usersArray = Array.from(users);
 
 			if (users.length > 0) {
+				const sortedUsers = usersArray.sort((a, b) => new Date(2000, a.birthday?.month! - 1, a.birthday?.day).getTime() - new Date(2000, b.birthday?.month! - 1, b.birthday?.day).getTime());
+
 				const embed = new EmbedBuilder()
 					.setColor(0x8742f5)
 					.setTitle('Lista de cumpleaños')
 
-				users.forEach(user => {
+				sortedUsers.forEach(user => {
 					embed.addFields(
 						{ name: user.displayName, value: `${user.birthday?.day}/${user.birthday?.month}` }
 					)
