@@ -2,6 +2,7 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import Events from './events/index.js';
 import Keys from './keys.js';
 import { registerEvents } from './utils/index.js';
+import mongoose from 'mongoose';
 
 const client = new Client({
 	intents: [
@@ -19,3 +20,15 @@ client.login(Keys.token)
 		console.error("[ERROR]:", err);
 		process.exit(1);
 	});
+
+// Connect to MongoDB database
+async function connectToMongoDB(connectionString: string) {
+	await mongoose.connect(connectionString);
+	console.log('Connected to MongoDB database.');
+}
+
+try {
+	await connectToMongoDB(Keys.mongodb_uri);
+} catch (err) {
+	console.log('Error connecting to MongoDB: ', err);
+}

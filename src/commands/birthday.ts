@@ -1,7 +1,8 @@
-import { EmbedBuilder, SlashCommandBuilder, TextChannel, User } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { command } from "../utils/command.js";
 import fs from 'fs';
 import { Color, Reply } from "../utils/replies.js";
+import { User } from "../mongodb/models/user.model.js";
 
 const data = new SlashCommandBuilder()
 	.setName('birthday')
@@ -56,9 +57,7 @@ export default command(data, async ({ interaction }) => {
 		const day = interaction.options.getInteger('day');
 		const month = interaction.options.getInteger('month');
 
-		var birthdays = JSON.parse(fs.readFileSync('./birthdays.json', 'utf8'));
-
-		var find = birthdays.find((o: { user: User; }) => o.user?.id === user?.id)
+		const find = await User.findOne({ userId: user?.id });
 
 		if (find) {
 			return interaction.reply(
@@ -66,55 +65,72 @@ export default command(data, async ({ interaction }) => {
 			);
 		}
 
-		var birthday = {
-			user: user,
-			day: day,
-			month: month,
-			job: `* * * ${day} ${month} *`
+		const registerUser = new User({
+			userId: user?.id,
+			displayName: user?.displayName,
+			birthday: {
+				day: day,
+				month: month
+			},
+			score: 0
+		});
+
+		try {
+			const data = await registerUser.save();
+
+			if (data) {
+				return interaction.reply(
+					Reply(`Cumpleaños de ${user} añadido`, Color.Success)
+				);
+			}
+		} catch (err) {
+			return console.error(err);
 		}
-
-		birthdays.push(birthday);
-
-		fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays, null, 2), 'utf8');
-
-		return interaction.reply(
-			Reply(`Cumpleaños de ${user} añadido`, Color.Success)
-		);
 	} else if (interaction.options.getSubcommand() === 'remove') {
 		const user = interaction.options.getUser('user');
 
-		var birthdays = JSON.parse(fs.readFileSync('./birthdays.json', 'utf8'));
-
-		var find = birthdays.find((o: { user: User; }) => o.user?.id === user?.id);
+		const find = await User.findOne({ userId: user?.id });
 
 		if (find) {
-			birthdays.splice(find, 1);
+			try {
+				const data = await User.findOneAndDelete({ userId: user?.id });
 
-			fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays, null, 2), 'utf8');
-
-			return interaction.reply(
-				Reply(`Cumpleaños de ${user} eliminado`, Color.Success)
-			);
+				if (data) {
+					return interaction.reply(
+						Reply(`Cumpleaños de ${user} eliminado`, Color.Success)
+					);
+				}
+			} catch (err) {
+				console.error(err);
+			}
 		}
 
-		return interaction.reply(
-			Reply(`El cumpleaños de ${user} no está añadido`, Color.Error)
-		);
+
 	} else if (interaction.options.getSubcommand() === 'list') {
-		var birthdays = JSON.parse(fs.readFileSync('./birthdays.json', 'utf8'));
+		try {
+			const users = await User.find().sort({ birthday: -1 });
 
-		var sortedBirthdays = birthdays.sort((a: { month: number; day: number; }, b: { month: number; day: number; }) => new Date(2000, a.month - 1, a.day).getTime() - new Date(2000, b.month - 1, b.day).getTime())
+			if (users.length > 0) {
+				const embed = new EmbedBuilder()
+					.setColor(0x8742f5)
+					.setTitle('Lista de cumpleaños')
 
-		const embed = new EmbedBuilder()
-			.setColor(0x8742f5)
-			.setTitle('Lista de cumpleaños')
+				users.forEach(user => {
+					embed.addFields(
+						{ name: user.displayName, value: `${user.birthday?.day}/${user.birthday?.month}` }
+					)
+				});
 
-		sortedBirthdays.forEach((birthday: { user: User; day: number; month: number; }) => {
-			embed.addFields(
-				{ name: birthday.user.globalName ?? birthday.user.username, value: `${birthday.day}/${birthday.month}` }
-			)
-		});
+				return interaction.reply({
+					embeds: [embed], ephemeral: false
+				});
+			}
 
-		interaction.reply({ embeds: [embed], ephemeral: false });
+			return interaction.reply(
+				Reply(`No hay cumpleaños registrados`, Color.Error)
+			);
+		} catch (err) {
+			console.error(err);
+		}
 	}
 });
