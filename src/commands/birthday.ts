@@ -54,8 +54,10 @@ const data = new SlashCommandBuilder()
 export default command(data, async ({ interaction }) => {
 	if (interaction.options.getSubcommand() === 'add') {
 		const user = interaction.options.getUser('user');
-		const day = interaction.options.getInteger('day');
-		const month = interaction.options.getInteger('month');
+		const day = interaction.options.getInteger('day') ?? 1;
+		const month = interaction.options.getInteger('month') ?? 1;
+
+		const birthday = new Date(2000, month - 1, day);
 
 		const find = await User.findOne({ userId: user?.id });
 
@@ -68,11 +70,7 @@ export default command(data, async ({ interaction }) => {
 		const registerUser = new User({
 			userId: user?.id,
 			displayName: user?.displayName,
-			birthday: {
-				day: day,
-				month: month
-			},
-			score: 0
+			birthday: birthday
 		});
 
 		try {
@@ -112,7 +110,7 @@ export default command(data, async ({ interaction }) => {
 			const usersArray = Array.from(users);
 
 			if (users.length > 0) {
-				const sortedUsers = usersArray.sort((a, b) => new Date(2000, a.birthday?.month! - 1, a.birthday?.day).getTime() - new Date(2000, b.birthday?.month! - 1, b.birthday?.day).getTime());
+				const sortedUsers = usersArray.sort((a, b) => a.birthday.getTime() - b.birthday.getTime());
 
 				const embed = new EmbedBuilder()
 					.setColor(0x8742f5)
@@ -120,7 +118,7 @@ export default command(data, async ({ interaction }) => {
 
 				sortedUsers.forEach(user => {
 					embed.addFields(
-						{ name: user.displayName, value: `${user.birthday?.day}/${user.birthday?.month}` }
+						{ name: user.displayName, value: `${user.birthday.getDate()}/${user.birthday.getMonth() + 1}` }
 					)
 				});
 
