@@ -11,7 +11,7 @@ export default command(data, async ({ interaction }) => {
 	const usersArray = Array.from(users);
 
 	if (users.length > 0) {
-		const sortedUsers = usersArray.sort((a, b) => a.score - b.score);
+		const sortedUsers = usersArray.sort((a, b) => b.score - a.score);
 
 		const embed = new EmbedBuilder()
 			.setColor(0x8742f5)
