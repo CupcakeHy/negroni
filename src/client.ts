@@ -21,6 +21,11 @@ client.login(Keys.token)
 		process.exit(1);
 	});
 
+const guild = client.guilds.cache.get("1086719720331423825");
+guild?.commands.set([]);
+client.application?.commands
+
+
 // Connect to MongoDB database
 async function connectToMongoDB(connectionString: string) {
 	await mongoose.connect(connectionString);

@@ -9,10 +9,10 @@ export default event(Events.ClientReady, async ({ log }, client) => {
 	const job = CronJob.from({
 		cronTime: `0 0 0 * * *`,
 		onTick: async function () {
-			const dateDay = new Date().getDate();
-			const dateMonth = new Date().getMonth() + 1;
+			const date = new Date();
+			date.setFullYear(2000);
 
-			const user = await User.findOne({ birthday: { day: dateDay, month: dateMonth } });
+			const user = await User.findOne({ birthday: date });
 
 			if (user) {
 				try {
@@ -27,6 +27,7 @@ export default event(Events.ClientReady, async ({ log }, client) => {
 			}
 		},
 		start: true,
+		runOnInit: true,
 		timeZone: 'Europe/Madrid'
 	});
 
