@@ -11,6 +11,7 @@ export default event(Events.ClientReady, async ({ log }, client) => {
 		onTick: async function () {
 			const date = new Date();
 			date.setFullYear(2000);
+			date.setHours(0, 0, 0, 0);
 
 			const user = await User.findOne({ birthday: date });
 
